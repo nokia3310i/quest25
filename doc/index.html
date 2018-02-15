@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <meta name="format-detection" content="telephone=no">
+<style>
+* {
+  -webkit-font-smoothing: antialiased;
+}
+html {
+  height: 100%;
+}
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system,BlinkMacSystemFont,"San Francisco","Helvetica Neue",Helvetica,Ubuntu,Roboto,Noto,"Segoe UI",Arial,sans-serif;
+  font-size: 14px;
+  line-height: 1.4;
+  color: #111;
+  cursor: default;
+  /* font-weight: 200; */
+}
+
+#cont_table_stock {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+}
+  #menu {
+    height: 50px;
+    display: flex;
+  }
+    #cont_button {
+      flex: 1;
+      align-items: center;
+      justify-content: center;
+      display: flex;
+    }
+      #cont_button button {
+        width: 300px;
+        height: 100%;
+        font-size: 18px;
+      }
+  table {
+    flex: 1;
+    min-width: calc(100% - 2px);
+    border-collapse: collapse;
+  }
+  table tr td {
+    border: 1px dotted #333;
+    padding: 3px;
+    height: 50px;
+  }
+  table th {
+    text-decoration: underline;
+    text-align: left;
+    padding: 4px;
+    background-color: #333;
+    color: #FDFDFD;
+  }
+  table tr:nth-of-type(2n) {
+    background-color: bisque;
+  }
+</style>
+</head>
+<body>
+<div id="cont_table_stock">
+  <div id="menu">
+    <div id="cont_button">
+      <button onclick="forceUpdateStock()">Update</button>
+    </div>
+  </div>
+  <table>
+    <thead>
+      <th>Name</th>
+      <th>Volume</th>
+      <th>Amount</th>
+    </thead>
+    <tbody>
+      $table
+    </tbody>
+  </table>
+</div>
+<script>
+var table = document.querySelector('table tbody')
+
+var i = 0
+var check = null
+function interval(cmd) {
+  if(cmd === 'start') {
+    check = setInterval(function() {
+      updateStock()
+      console.log(i++)
+    }, 15000)
+  }else{
+    i = 0
+    clearInterval(check)
+    check = null
+  }
+}
+
+interval('start')
+
+function updateStock() {
+  getAjax('/stock.php', function(data) {
+    table.innerHTML = data
+
+    if(check === null) {
+      interval('start')
+    }
+  })
+}
+
+function forceUpdateStock() {
+  interval('stop')
+  updateStock()
+  console.log('Forced update.')
+}
+
+function getAjax(url, success) {
+  var xhr = window.XMLHttpRequest ? new XMLHttpRequest() : new ActiveXObject('Microsoft.XMLHTTP')
+  xhr.open('GET', url)
+  xhr.onreadystatechange = function() {
+    if (xhr.readyState>3 && xhr.status==200) success(xhr.responseText);
+  }
+  xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+  xhr.send()
+  return xhr
+}
+</script>
+</body>
+</html>
